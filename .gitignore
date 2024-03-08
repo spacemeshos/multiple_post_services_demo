@@ -1,0 +1,8 @@
+post_data_*
+node_data/*
+dagu/data
+dagu/logs
+dagu/pids
+dagu/dagu_script*
+post/
+go-spacemesh/node_data

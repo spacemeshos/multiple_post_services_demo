@@ -1,0 +1,20 @@
+schedule:
+  start: "* * * * *" # we abuse here the scheduling possibility of DAGU, in the real setup you want to put here something that is closer to the CG
+restartWaitSec: 800
+steps:
+  - name: wait for cg to open
+    command: sh ../scripts/cg_open.sh
+    retryPolicy:
+      limit: 900
+      intervalSec: 2
+  - name: run proving DAG
+    depends:
+      - wait for cg to open
+    command: POST http://localhost:8080/api/v1/dags/proving
+    executor:
+      type: http
+      config:
+        timeout: 10
+        headers:
+          Content-Type: application/json
+        body: '{ "name": "proving", "action": "start", "params": "" }'

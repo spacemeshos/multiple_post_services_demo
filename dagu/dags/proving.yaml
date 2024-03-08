@@ -1,0 +1,234 @@
+# TODO: Use the API for shutting down the services instead of `--one-shot`.
+steps:
+  - name: run post service diskE_post1
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskE_post1 --address=http://localhost:10094 --operator-address=127.0.0.1:10051 --dir ../post/diskE_post1 --threads 1 --nonces 16
+  - name: run post service diskD_post1
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskD_post1 --address=http://localhost:10094 --operator-address=127.0.0.1:10052 --dir ../post/diskD_post1 --threads 1 --nonces 16
+  - name: run post service diskC_post3
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskC_post3 --address=http://localhost:10094 --operator-address=127.0.0.1:10053 --dir ../post/diskC_post3 --threads 1 --nonces 16
+  - name: run post service diskC_post2
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskC_post2 --address=http://localhost:10094 --operator-address=127.0.0.1:10054 --dir ../post/diskC_post2 --threads 1 --nonces 16
+    depends:
+      - post service diskC_post3 proved
+  - name: run post service diskC_post1
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskC_post --address=http://localhost:10094 --operator-address=127.0.0.1:10055 --dir ../post/diskC_post1 --threads 1 --nonces 16
+    depends:
+      - post service diskC_post2 proved
+  - name: run post service diskB_post3
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskB_post3 --address=http://localhost:10094 --operator-address=127.0.0.1:10056 --dir ../post/diskB_post3 --threads 1 --nonces 16
+  - name: run post service diskB_post2
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskB_post2 --address=http://localhost:10094 --operator-address=127.0.0.1:10057 --dir ../post/diskB_post2 --threads 1 --nonces 16
+    depends:
+      - post service diskB_post3 proved
+  - name: run post service diskB_post1
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskB_post1 --address=http://localhost:10094 --operator-address=127.0.0.1:10058 --dir ../post/diskB_post1 --threads 1 --nonces 16
+    depends:
+      - post service diskB_post2 proved
+  - name: run post service diskA_post2
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskA_post2 --address=http://localhost:10094 --operator-address=127.0.0.1:10059 --dir ../post/diskA_post2 --threads 1 --nonces 16
+    depends:
+      - post service diskC_post2 proved
+  - name: run post service diskA_post1
+    continueOn:
+      failure: true
+      skipped: true
+    command: "bash"
+    script: |
+      ../scripts/run_service.sh diskA_post1 --address=http://localhost:10094 --operator-address=127.0.0.1:10060 --dir ../post/diskA_post1 --threads 1 --nonces 16
+    depends:
+      - post service diskA_post2 proved
+  - name: post service diskE_post1 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskE_post1
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskE_post1
+  - name: stop post service diskE_post1
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskE_post1
+    depends:
+      - post service diskE_post1 proved
+  - name: post service diskD_post1 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskD_post1
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskD_post1
+  - name: stop post service diskD_post1
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskD_post1
+    depends:
+      - post service diskD_post1 proved
+  - name: post service diskC_post3 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskC_post3
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskC_post3
+  - name: stop post service diskC_post3
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskC_post3
+    depends:
+      - post service diskC_post3 proved
+  - name: post service diskC_post2 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskC_post2
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskC_post2
+  - name: stop post service diskC_post2
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskC_post2
+    depends:
+      - post service diskC_post2 proved
+  - name: post service diskC_post1 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskC_post1
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskC_post1
+  - name: stop post service diskC_post1
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskC_post1
+    depends:
+      - post service diskC_post1 proved
+  - name: post service diskB_post3 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskB_post3
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskB_post3
+  - name: stop post service diskB_post3
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskB_post3
+    depends:
+      - post service diskB_post3 proved
+  - name: post service diskB_post2 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskB_post2
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskB_post2
+  - name: stop post service diskB_post2
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskB_post2
+    depends:
+      - post service diskB_post2 proved
+  - name: post service diskB_post1 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskB_post1
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskB_post1
+  - name: stop post service diskB_post1
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskB_post1
+    depends:
+      - post service diskB_post1 proved
+  - name: post service diskA_post2 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskA_post2
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskA_post2
+  - name: stop post service diskA_post2
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskA_post2
+    depends:
+      - post service diskA_post2 proved
+  - name: post service diskA_post1 proved
+    command: "bash"
+    script: |
+      ../scripts/is_idle.sh diskA_post1
+    retryPolicy:
+      intervalSec: 2
+      limit: 30
+    depends:
+      - run post service diskA_post1
+  - name: stop post service diskA_post1
+    command: "bash"
+    script: |
+      ../scripts/stop_service.sh diskA_post1
+    depends:
+      - post service diskA_post1 proved

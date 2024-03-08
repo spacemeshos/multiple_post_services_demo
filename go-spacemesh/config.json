@@ -1,0 +1,30 @@
+{
+    "main": {
+        "layer-duration": "1m",
+        "layers-per-epoch": 15
+    },
+    "poet": {
+        "grace-period": "1m",
+        "cycle-gap": "7m",
+        "phase-shift": "10m",
+        "retry-max": 10,
+        "retry-delay": "2s"
+    },
+    "smeshing": {
+        "smeshing-start": false,
+        "smeshing-opts": {
+            "smeshing-opts-scrypt": {
+                "n": 16
+            }
+        }
+    },
+    "post": {
+        "post-labels-per-unit": 1024,
+        "post-max-numunits": 32,
+        "post-k1": 12,
+        "post-k2": 20
+    },
+    "logging": {
+        "grpc": "WARN"
+    }
+}
