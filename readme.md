@@ -85,3 +85,6 @@ Upon successful execution, you'll see the resulting DAG as such:
 The visualization clearly displays the dependencies and the sequence of the post proving processes.
 
 Each post proving process represents an individual post service that is started when needed and stopped after fulfilling its purpose.
+
+This demo is equipped with a `wait_for_cg` DAG that essentially waits for the poet's cycle gap to open (in a very naive manner; definitely not intended for production use) and then automatically triggers the `proving` DAG.
+The `wait_for_cg` DAG functions only when the command `./dagu scheduler -d ./dags` runs alongside with `dagu server -d ./dags`. If you prefer not to run the scheduler, you can safely manually run the `wait_for_cg` DAG, or run the `proving` DAG when the cycle gap is available.
