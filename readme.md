@@ -160,7 +160,22 @@ grpcurl --plaintext localhost:10094 spacemesh.v1.PostInfoService.PostStates
 }
 ```
 
-Please note that each of the post srevices exposes it's own API (`--operator-address`) which can be used to see the state of post-service itself:
+You can also see in Events: `grpcurl -plaintext localhost:10093 spacemesh.v1.AdminService.EventsStream`
+
+```bash
+{
+  "timestamp": "2024-03-11T15:48:16.759101Z",
+  "help": "Node finished PoST execution using PoET challenge.",
+  "postComplete": {
+    "challenge": "zsw7v26gmJMUqfUpPUEAxAsDPO0cHtbYSnV8iAX2lBA=",
+    "smesher": "nZW66vTRVDDD0CCChSSvNWWC7GArbFZPYc9Mm1EVwh4="
+  }
+}
+```
+
+As you can see `smesher` here points to the `id` behind the post service that was used to prove the PoST.
+
+Please note that each of the post services exposes it's own API (`--operator-address`) which can be used to see the state of post-service itself:
 
 ```bash
 # Not doing anything
