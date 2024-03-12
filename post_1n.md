@@ -91,21 +91,19 @@ Consolidating your Spacemesh identities / PoST services onto a single node strea
 
 ### Verifying Connection and Reward Eligibility
 
-#### **Verifica**tion Process
-
 After adding or migrating identities and PoST services, verify they're correctly connected to your node and eligible for rewards by monitoring the node's operational logs. Look for indicators of successful identity recognition and PoST data validation. You should see:
 
 `atxBuilder registered signing key `
 
 for each key, the node could find in the `./node_data/identities/` directory.
 
-#### **Troubleshooting Tips**
+### **Troubleshooting Tips**
 
--**Check Configuration Files** : Ensure all identity and service configurations are correctly set up.
+- **Check Configuration Files** : Ensure all identity and service configurations are correctly set up.
 
--**Review Logs for Errors** : Any connectivity or initialization errors will be detailed in the node's logs.
+- **Review Logs for Errors** : Any connectivity or initialization errors will be detailed in the node's logs.
 
--**Ensure Unique Operation** : Running multiple nodes with the same identity can lead to issues. Verify that each identity is only active on one node
+- **Ensure Unique Operation** : Running multiple nodes with the same identity can lead to issues. Verify that each identity is only active on one node
 
 ### **Advanced Configurations**
 
