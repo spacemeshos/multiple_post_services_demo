@@ -1,6 +1,3 @@
-> [!WARNING]
-> This is still in progress guide. But it consists already useful information.
-
 # Introduction
 
 This guide aims to demonstrate the setup of multiple post services using go-spacemesh. It assumes familiarity with the setup and employs a standalone network for ease of illustration.
