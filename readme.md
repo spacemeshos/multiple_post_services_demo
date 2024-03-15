@@ -1,6 +1,6 @@
 # Introduction
 
-This guide aims to demonstrate the setup of multiple post services using go-spacemesh. It assumes familiarity with the setup and employs a standalone network for ease of illustration.
+This guide aims to demonstrate the setup of multiple post services using go-spacemesh. It assumes familiarity with the setup and employs a standalone network for easy illustration.
 
 Using a similar setup for a production environment is feasible, but that's not the purpose of this guide.
 
@@ -17,7 +17,7 @@ We will create a simple network topology for the post services and then construc
 
 ## Standalone network
 
-We will operate a network with epochs lasting 15 minutes, layers that last for 1 minute, with a poet cycle gap of 5 minutes and a phase shift of 10 minutes.
+We will operate a network with epochs lasting 15 minutes, layers that last for 1 minute, with a poet cycle gap of 5 minutes, and a phase shift of 10 minutes.
 
 Please note that in standalone mode, the poet works within the same process as the node, which might lead to occasional 100% usage of one CPU core.
 
@@ -47,7 +47,7 @@ By default, the Dagu UI will be accessible at `http://localhost:8080`
 
 2. Go to DAGU and execute the `init` DAG. It will set up the post data with `postcli`, retrieve the `goldenATX` from the node API, and copy the `identity.key` from each post data folder to the node data directory.
 3. Confirm the initialization was successful by checking that the DAGU status for that DAG is `finished`.
-4. Stop the node. This is necessary because the node does not reload keys from disk by design.
+4. Stop the node. This is necessary because the node does not reload keys from the disk by design.
 5. Remove the `local.key` file from the node data directory. The setup of multiple post services requires the deletion of the node's `local.key` file. The node will not start if this file is present.
 6. Restart the node with the same command as in step 1 and keep it running.
 
@@ -84,18 +84,18 @@ The visualization clearly displays the dependencies and the sequence of the post
 Each post proving process represents an individual post service that is started when needed and stopped after fulfilling its purpose.
 
 This demo is equipped with a `wait_for_cg` DAG that essentially waits for the poet's cycle gap to open (in a very naive manner; definitely not intended for production use) and then automatically triggers the `proving` DAG.
-The `wait_for_cg` DAG functions only when the command `./dagu scheduler -d ./dags` runs alongside with `dagu server -d ./dags`. If you prefer not to run the scheduler, you can safely manually run the `wait_for_cg` DAG, or run the `proving` DAG when the cycle gap is available.
+The `wait_for_cg` DAG functions only when the command `./dagu scheduler -d ./dags` runs alongside `dagu server -d ./dags`. If you prefer not to run the scheduler, you can safely manually run the `wait_for_cg` DAG, or run the `proving` DAG when the cycle gap is available.
 
 If you keep the `wait_for_cg` DAG running (and dagu scheduler) the post services will continue to prove every epoch.
 
 # API and more
 
-On the node side on `grpc-post-listener` you will find additional method: `spacemesh.v1.PostInfoService.PostStates` which returns the state of the post services.
+On the node side on `grpc-post-listener` you will find an additional method: `spacemesh.v1.PostInfoService.PostStates` which returns the state of the post services.
 
-Wherever the service is `IDLE` it means that the post service is not neede by node at the moment. The `PROVING` state means that the NODE expects post service to be proving. Which means:
+Wherever the service is `IDLE` it means that the post service is not needed by the node at the moment. The `PROVING` state means that the NODE expects post service to be proving. Which means:
 
-- Wherever the state is `IDLE` you can shut down given post service, node does not need it anymore or yet. Nothing bad will happen if the post service remains connected to the node, but it's a waste of resources.
-- Wheres the state is `PROVING` you should run the post service. However it's important to understand that you're free to orchestrate the post services as you wish. The moment you connect post service when node expects it to be `PROVING` the post service will stat proving process (with some small delay because of API calls etc).
+- Whenever the state is `IDLE` you can shut down the given post service, the node does not need it anymore or yet. Nothing bad will happen if the post service remains connected to the node, but it's a waste of resources.
+- When the state is `PROVING` you should run the post service. However, it's important to understand that you're free to orchestrate the post services as you wish. The moment you connect the post service when the node expects it to be `PROVING` the post service will start the proving process (with some small delay because of API calls etc).
 
 Sample output:
 
@@ -172,7 +172,7 @@ You can also see in Events: `grpcurl -plaintext localhost:10093 spacemesh.v1.Adm
 
 As you can see `smesher` here points to the `id` behind the post service that was used to prove the PoST.
 
-Please note that each of the post services exposes it's own API (`--operator-address`) which can be used to see the state of post-service itself:
+Please note that each of the post services exposes its own API (`--operator-address`) which can be used to see the state of post-service itself:
 
 ```bash
 # Not doing anything
@@ -202,7 +202,7 @@ Please note that each of the post services exposes it's own API (`--operator-add
 
 While Dagu is small and easy to use, it might not be the best choice for a production environment. This really depends on your needs. Larger systems like Apache Airflow or Prefect have more features and integrations. But, they are also more complex and need more resources and expertise to manage.
 
-You might also succeed with different type of tools like n8n, depending on your setup.
+You might also succeed with different types of tools like n8n, depending on your setup.
 
 ### Scripts in the `./scripts` folder
 
