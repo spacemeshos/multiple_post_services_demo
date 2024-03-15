@@ -31,7 +31,7 @@ As we touched on in the introduction, we will use DAGU to coordinate the post pr
 
 1. Start dagu with the following command while in the `dagu` directory:
 
-```
+```shell
 ./dagu server -d dags
 ```
 
@@ -41,7 +41,7 @@ By default, the Dagu UI will be accessible at `http://localhost:8080`
 
 1. Start the node using the following command:
 
-```
+```shell
 ./go-spacemesh -c config.json --preset=standalone --genesis-time=2024-03-08T14:30:00Z --grpc-json-listener 127.0.0.1:10095 -d ../node_data | tee -a node.log
 ```
 
@@ -55,7 +55,7 @@ By default, the Dagu UI will be accessible at `http://localhost:8080`
 
 In the `init.yaml` DAG, you'll notice we have set up 10 post directories. We've chosen this naming scheme to resemble a realistic scenario.
 
-```
+```shell
 post/diskA_post1
 ├── identity.key
 ├── postdata_0.bin
@@ -202,7 +202,7 @@ Please note that each of the post services exposes its own API (`--operator-addr
 
 While Dagu is small and easy to use, it might not be the best choice for a production environment. This really depends on your needs. Larger systems like Apache Airflow or Prefect have more features and integrations. But, they are also more complex and need more resources and expertise to manage.
 
-You might also succeed with different types of tools like n8n, depending on your setup.
+You might also succeed with different type of tools like n8n, depending on your setup.
 
 ### Scripts in the `./scripts` folder
 
@@ -217,3 +217,45 @@ For setups across multiple hosts, like Kubernetes, you could schedule pods to ha
 This demonstration presumes that everything operates on a single machine. In scenarios where the node exists within a different network (or for heightened security measures), the implementation of mutual TLS (mTLS) is recommended.
 
 For configurations that utilize mTLS, one must set the `--address` on the post service to correspond with the address on which the `grpc-tls-listener` is listening.
+
+# Troubleshooting
+
+## Dagu Server Fails to Start
+
+**Problem** : Starting the Dagu server results in an error, or it starts but is not accessible.
+
+**Cause** : Common causes include port conflicts, missing `dags` directory, or insufficient permissions.
+
+**Solution** : Check if another service is using port 8080 and either stop that service or configure Dagu to use a different port. Ensure the `dags` directory exists within the `./dagu` directory and that you have the necessary permissions to execute `./dagu` and access the directory.
+
+## Node Does Not Recognize Post Services
+
+**Problem** : After restarting the node, it does not recognize the initialized post services.
+
+**Cause** : This issue typically arises if the `identity.key` files are not copied correctly to the node data directory or if the `local.key` file was not removed.
+
+**Solution** : Ensure that the `identity.key` files from each post data folder are correctly copied to the node data directory. Remove the `local.key` file from the node data directory if it still exists.
+
+## High CPU Usage
+
+**Problem** : Experiencing 100% CPU usage by the node or poet service.
+
+**Cause** : This is expected behavior in standalone mode due to the poet service running within the same process as the node.
+
+**Solution** : While this is normal for demonstration purposes, the production setup should be prepared and observed carefully. 
+
+## Post Services Do Not Start Proving
+
+**Problem** : Post services are set up and the node is running, but the post services do not start the proving process.
+
+**Cause** : This could be due to incorrect scheduling of the `proving` DAG, issues with the `wait_for_cg` DAG, or the node's `grpc-post-listener` not being properly configured.
+
+**Solution** : Verify that the `wait_for_cg` DAG and the scheduler are correctly set up and running. Check the node configuration to ensure the `grpc-post-listener` is correctly set and accessible by the post services.
+
+## Connection Issues Between Node and Post Services
+
+**Problem** : The node and post services experience connection issues or fail to communicate.
+
+**Cause** : Network configuration issues, firewall restrictions, or incorrect address/port settings in the configuration files.
+
+**Solution** : Ensure network configurations allow for communication between the node and post services. Check firewall settings to allow traffic on necessary ports. Verify that the addresses and ports in the configuration files match and are correct.
