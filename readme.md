@@ -1,6 +1,6 @@
 # Introduction
 
-This guide aims to demonstrate the setup of multiple post services using go-spacemesh. It assumes familiarity with the setup and employs a standalone network for ease of illustration.
+This guide aims to demonstrate the setup of multiple post services using go-spacemesh. It assumes familiarity with the setup and employs a standalone network for easy illustration.
 
 Using a similar setup for a production environment is feasible, but that's not the purpose of this guide.
 
@@ -17,7 +17,7 @@ We will create a simple network topology for the post services and then construc
 
 ## Standalone network
 
-We will operate a network with epochs lasting 15 minutes, layers that last for 1 minute, with a poet cycle gap of 5 minutes and a phase shift of 10 minutes.
+We will operate a network with epochs lasting 15 minutes, layers that last for 1 minute, with a poet cycle gap of 5 minutes, and a phase shift of 10 minutes.
 
 Please note that in standalone mode, the poet works within the same process as the node, which might lead to occasional 100% usage of one CPU core.
 
@@ -31,7 +31,7 @@ As we touched on in the introduction, we will use DAGU to coordinate the post pr
 
 1. Start dagu with the following command while in the `dagu` directory:
 
-```
+```shell
 ./dagu server -d dags
 ```
 
@@ -41,13 +41,13 @@ By default, the Dagu UI will be accessible at `http://localhost:8080`
 
 1. Start the node using the following command:
 
-```
+```shell
 ./go-spacemesh -c config.json --preset=standalone --genesis-time=2024-03-08T14:30:00Z --grpc-json-listener 127.0.0.1:10095 -d ../node_data | tee -a node.log
 ```
 
 2. Go to DAGU and execute the `init` DAG. It will set up the post data with `postcli`, retrieve the `goldenATX` from the node API, and copy the `identity.key` from each post data folder to the node data directory.
 3. Confirm the initialization was successful by checking that the DAGU status for that DAG is `finished`.
-4. Stop the node. This is necessary because the node does not reload keys from disk by design.
+4. Stop the node. This is necessary because the node does not reload keys from the disk by design.
 5. Remove the `local.key` file from the node data directory. The setup of multiple post services requires the deletion of the node's `local.key` file. The node will not start if this file is present.
 6. Restart the node with the same command as in step 1 and keep it running.
 
@@ -55,7 +55,7 @@ By default, the Dagu UI will be accessible at `http://localhost:8080`
 
 In the `init.yaml` DAG, you'll notice we have set up 10 post directories. We've chosen this naming scheme to resemble a realistic scenario.
 
-```
+```shell
 post/diskA_post1
 ├── identity.key
 ├── postdata_0.bin
@@ -84,18 +84,18 @@ The visualization clearly displays the dependencies and the sequence of the post
 Each post proving process represents an individual post service that is started when needed and stopped after fulfilling its purpose.
 
 This demo is equipped with a `wait_for_cg` DAG that essentially waits for the poet's cycle gap to open (in a very naive manner; definitely not intended for production use) and then automatically triggers the `proving` DAG.
-The `wait_for_cg` DAG functions only when the command `./dagu scheduler -d ./dags` runs alongside with `dagu server -d ./dags`. If you prefer not to run the scheduler, you can safely manually run the `wait_for_cg` DAG, or run the `proving` DAG when the cycle gap is available.
+The `wait_for_cg` DAG functions only when the command `./dagu scheduler -d ./dags` runs alongside `dagu server -d ./dags`. If you prefer not to run the scheduler, you can safely manually run the `wait_for_cg` DAG, or run the `proving` DAG when the cycle gap is available.
 
 If you keep the `wait_for_cg` DAG running (and dagu scheduler) the post services will continue to prove every epoch.
 
 # API and more
 
-On the node side on `grpc-post-listener` you will find additional method: `spacemesh.v1.PostInfoService.PostStates` which returns the state of the post services.
+On the node side on `grpc-post-listener` you will find an additional method: `spacemesh.v1.PostInfoService.PostStates` which returns the state of the post services.
 
-Wherever the service is `IDLE` it means that the post service is not neede by node at the moment. The `PROVING` state means that the NODE expects post service to be proving. Which means:
+Wherever the service is `IDLE` it means that the post service is not needed by the node at the moment. The `PROVING` state means that the NODE expects post service to be proving. Which means:
 
-- Wherever the state is `IDLE` you can shut down given post service, node does not need it anymore or yet. Nothing bad will happen if the post service remains connected to the node, but it's a waste of resources.
-- Wheres the state is `PROVING` you should run the post service. However it's important to understand that you're free to orchestrate the post services as you wish. The moment you connect post service when node expects it to be `PROVING` the post service will stat proving process (with some small delay because of API calls etc).
+- Whenever the state is `IDLE` you can shut down the given post service, the node does not need it anymore or yet. Nothing bad will happen if the post service remains connected to the node, but it's a waste of resources.
+- When the state is `PROVING` you should run the post service. However, it's important to understand that you're free to orchestrate the post services as you wish. The moment you connect the post service when the node expects it to be `PROVING` the post service will start the proving process (with some small delay because of API calls etc).
 
 Sample output:
 
@@ -172,7 +172,7 @@ You can also see in Events: `grpcurl -plaintext localhost:10093 spacemesh.v1.Adm
 
 As you can see `smesher` here points to the `id` behind the post service that was used to prove the PoST.
 
-Please note that each of the post services exposes it's own API (`--operator-address`) which can be used to see the state of post-service itself:
+Please note that each of the post services exposes its own API (`--operator-address`) which can be used to see the state of post-service itself:
 
 ```bash
 # Not doing anything
@@ -217,3 +217,45 @@ For setups across multiple hosts, like Kubernetes, you could schedule pods to ha
 This demonstration presumes that everything operates on a single machine. In scenarios where the node exists within a different network (or for heightened security measures), the implementation of mutual TLS (mTLS) is recommended.
 
 For configurations that utilize mTLS, one must set the `--address` on the post service to correspond with the address on which the `grpc-tls-listener` is listening.
+
+# Troubleshooting
+
+## Dagu Server Fails to Start
+
+**Problem** : Starting the Dagu server results in an error, or it starts but is not accessible.
+
+**Cause** : Common causes include port conflicts, missing `dags` directory, or insufficient permissions.
+
+**Solution** : Check if another service is using port 8080 and either stop that service or configure Dagu to use a different port. Ensure the `dags` directory exists within the `./dagu` directory and that you have the necessary permissions to execute `./dagu` and access the directory.
+
+## Node Does Not Recognize Post Services
+
+**Problem** : After restarting the node, it does not recognize the initialized post services.
+
+**Cause** : This issue typically arises if the `identity.key` files are not copied correctly to the node data directory or if the `local.key` file was not removed.
+
+**Solution** : Ensure that the `identity.key` files from each post data folder are correctly copied to the node data directory. Remove the `local.key` file from the node data directory if it still exists.
+
+## High CPU Usage
+
+**Problem** : Experiencing 100% CPU usage by the node or poet service.
+
+**Cause** : This is expected behavior in standalone mode due to the poet service running within the same process as the node.
+
+**Solution** : While this is normal for demonstration purposes, the production setup should be prepared and observed carefully. 
+
+## Post Services Do Not Start Proving
+
+**Problem** : Post services are set up and the node is running, but the post services do not start the proving process.
+
+**Cause** : This could be due to incorrect scheduling of the `proving` DAG, issues with the `wait_for_cg` DAG, or the node's `grpc-post-listener` not being properly configured.
+
+**Solution** : Verify that the `wait_for_cg` DAG and the scheduler are correctly set up and running. Check the node configuration to ensure the `grpc-post-listener` is correctly set and accessible by the post services.
+
+## Connection Issues Between Node and Post Services
+
+**Problem** : The node and post services experience connection issues or fail to communicate.
+
+**Cause** : Network configuration issues, firewall restrictions, or incorrect address/port settings in the configuration files.
+
+**Solution** : Ensure network configurations allow for communication between the node and post services. Check firewall settings to allow traffic on necessary ports. Verify that the addresses and ports in the configuration files match and are correct.
